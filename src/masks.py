@@ -1,10 +1,28 @@
-def get_mask_card_number(card_number: str) -> str:
-    """Маскирует номер банковской карты по правилу XXXX XX** **** XXXX."""
-    card_number_str = str(card_number)
-    return f"{card_number_str[:4]} {card_number_str[4:6]}** **** {card_number_str[-4:]}"
+
+# src/masks.py
+def mask_card(card_number: str) -> str:
+    """
+    Маскирует номер банковской карты, оставляя видимыми только первые 4 и последние 4 цифры.
+
+    Args:
+        card_number: Номер банковской карты в виде строки.
+
+    Returns:
+        Маскированный номер карты в виде строки.
+        Пример: "1234 **** **** 5678"
+    """
+    return f"{card_number[:4]} **** **** {card_number[-4:]}"
 
 
-def get_mask_account(account_number: str) -> str:
-    """Маскирует номер банковского счета по правилу **XXXX."""
-    account_number_str = str(account_number)
-    return "**" + account_number_str[-4:]
+def mask_account(account_number: str) -> str:
+    """
+        Маскирует номер банковского счета, оставляя видимыми только последние 4 цифры.
+
+        Args:
+            account_number: Номер банковского счета в виде строки.
+
+        Returns:
+            Маскированный номер счета в виде строки.
+            Пример: "**0000"
+        """
+    return f"**{account_number[-4:]}"

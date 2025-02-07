@@ -1,5 +1,3 @@
-
-# src/masks.py
 def mask_card(card_number: str) -> str:
     """
     Маскирует номер банковской карты, оставляя видимыми только первые 4 и последние 4 цифры.
@@ -11,18 +9,20 @@ def mask_card(card_number: str) -> str:
         Маскированный номер карты в виде строки.
         Пример: "1234 **** **** 5678"
     """
+    if len(card_number) < 8:
+        return "Некорректный номер карты"  # Or raise ValueError, depending on desired behavior
     return f"{card_number[:4]} **** **** {card_number[-4:]}"
 
 
 def mask_account(account_number: str) -> str:
     """
-        Маскирует номер банковского счета, оставляя видимыми только последние 4 цифры.
+    Маскирует номер банковского счета, оставляя видимыми только последние 4 цифры.
 
-        Args:
-            account_number: Номер банковского счета в виде строки.
+    Args:
+        account_number: Номер банковского счета в виде строки.
 
-        Returns:
-            Маскированный номер счета в виде строки.
-            Пример: "**0000"
-        """
-    return f"**{account_number[-4:]}"
+    Returns:
+        Маскированный номер счета в виде строки.
+        Пример: "****5678"
+    """
+    return f"****{account_number[-4:]}"

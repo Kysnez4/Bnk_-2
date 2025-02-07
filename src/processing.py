@@ -1,43 +1,29 @@
-
-# src/widget.py
-from datetime import datetime
-from masks import mask_account, mask_card
+from typing import List, Dict, Any
 
 
-def mask_account_card(account_info: str) -> str:
+def filter_by_state(operations: List[Dict[str, Any]], state: str = 'EXECUTED') -> List[Dict[str, Any]]:
     """
-    Маскирует номер карты или счета в строке.
+    Фильтрует список операций по заданному статусу.
 
     Args:
-        account_info (str): Строка, содержащая тип и номер карты или счета.
-            Примеры: "Visa Platinum 7000792289606361", "Maestro 7000792289606361", "Счет 73654108430135874305"
+        operations (List[Dict[str, Any]]): Список операций, каждая операция представлена словарем.
+        state (str): Статус, по которому нужно отфильтровать операции. По умолчанию "EXECUTED".
 
     Returns:
-        str: Строка с замаскированным номером.
+        List[Dict[str, Any]]: Список операций с заданным статусом.
     """
-    parts = account_info.split()
-    if not parts:
-        return account_info  # Если строка пустая, возвращаем ее без изменений.
-
-    if parts[0].lower() in ("visa", "maestro"):
-        return f"{parts[0]} {mask_card(''.join(parts[1:]))}"
-    elif parts[0].lower() == "счет":
-        return f"{parts[0]} {mask_account(''.join(parts[1:]))}"
-    else:
-        return account_info  # Если тип не распознан, возвращаем исходную строку
+    return [operation for operation in operations if operation.get("state") == state]
 
 
-def get_date(date_str: str) -> str:
+def sort_by_date(operations: List[Dict[str, Any]], reverse: bool = True) -> List[Dict[str, Any]]:
     """
-    Преобразует строку с датой в формате "ГГГГ-ММ-ДДTчч:мм:сс.миллисекунды" в формат "ДД.ММ.ГГГГ".
+    Сортирует список операций по дате.
 
     Args:
-        date_str (str): Строка с датой в формате "ГГГГ-ММ-ДДTчч:мм:сс.миллисекунды".
-            Пример: "2024-03-11T02:26:18.671407"
+        operations (List[Dict[str, Any]]): Список операций, каждая операция представлена словарем.
+        reverse (bool): True для сортировки в порядке убывания, False - в порядке возрастания.
 
     Returns:
-        str: Строка с датой в формате "ДД.ММ.ГГГГ".
-        Пример: "11.03.2024"
+        List[Dict[str, Any]]: Отсортированный список операций.
     """
-    date_object = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-    return date_object.strftime("%d.%m.%Y")
+    return sorted(operations, key=lambda x: x.get("date", ""), reverse=reverse)

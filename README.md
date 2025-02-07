@@ -1,24 +1,30 @@
-## Описание:
+# Bank Operations Widget
 
-Это виджет который нужен чтобы работать с данными картами
+This project provides a widget to display and process bank operations data.  It includes functions for filtering and sorting operations.
 
-## Установка:
+## Installation
 
-1. Клонируйте репозиторий:
+1.  Clone the repository: `git clone <repository_url>`
+2.  Install dependencies: `pip install -r requirements.txt` (Create a `requirements.txt` with `masks` library inside)
+
+## Usage
+
+The main script is `main.py`.  It imports functions from the `src/processing.py` module.
+
+To run the script:
 ```
-https://github.com/Kysnez4/Bnk_-2/tree/feature
+python main.py
 ```
-2. Установите зависимости:
 ```
-pip install -r requirements.txt
+
+▌Example
+
+The script uses sample data to demonstrate the functionality. You can modify the test_data in main.py to use your own data.
+
+▌Functions
+
+•  filter_by_state(operations, state='EXECUTED'): Filters a list of operations dictionaries by the state key. Returns a new list containing only operations with the specified state.
+
+•  sort_by_date(operations, reverse=True): Sorts a list of operation dictionaries by the date key. Returns a new list sorted by date, in descending order by default.
+
 ```
-# Использование:
-
-1. Вводить данные о банковских счетах или картах.
-2. Эти счета и карты будут замаскированными.
-
-# Пример использования:
-
-Вы вводите информацию о карте Visa Classic 6831982476737658 и программа выдаёт вам Visa Classic 6831 98** **** 7658
-
-Или вы вводите информацию о счёте Счет 73654108430135874305 и программа выдаёт Счет **4305

@@ -1,6 +1,6 @@
-# src/widget.py
 from datetime import datetime
-from masks import mask_account, mask_card
+
+from src.masks import mask_account, mask_card
 
 
 def mask_account_card(account_info: str) -> str:
@@ -40,10 +40,3 @@ def get_date(date_str: str) -> str:
     """
     date_object = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
     return date_object.strftime("%d.%m.%Y")
-
-
-if __name__ == '__main__':
-    print(mask_account_card("Visa Platinum 7000792289606361"))
-    print(mask_account_card("Maestro 7000792289606361"))
-    print(mask_account_card("Счет 73654108430135874305"))
-    print(get_date("2024-03-11T02:26:18.671407"))

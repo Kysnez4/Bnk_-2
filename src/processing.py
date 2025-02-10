@@ -1,37 +1,29 @@
-from typing import Any
+from typing import List, Dict, Any
 
 
-def filter_by_state(list_of_dicts: list[Any], state: str = "EXECUTED") -> list[Any]:
-    """Проверяет значение в словарях на заданное и если оно совпадает то, выводит его"""
-    correct_list = []
-    for num_dict in range(0, len(list_of_dicts) - 1):
-        if list_of_dicts[num_dict]["state"] == state:
-            correct_list.append(list_of_dicts[num_dict])
-    return correct_list
+def filter_by_state(operations: List[Dict[str, Any]], state: str = 'EXECUTED') -> List[Dict[str, Any]]:
+    """
+    Фильтрует список операций по заданному статусу.
+
+    Args:
+        operations (List[Dict[str, Any]]): Список операций, каждая операция представлена словарем.
+        state (str): Статус, по которому нужно отфильтровать операции. По умолчанию "EXECUTED".
+
+    Returns:
+        List[Dict[str, Any]]: Список операций с заданным статусом.
+    """
+    return [operation for operation in operations if operation.get("state") == state]
 
 
-def sort_by_date(list_of_dicts: list[Any], sorting_direct: bool = True) -> list[Any]:
-    """Сортирует список по датам в словарях по убывание(по умолчанию)"""
-    return sorted(list_of_dicts, key=lambda x: x.get("date"), reverse=sorting_direct)
+def sort_by_date(operations: List[Dict[str, Any]], reverse: bool = True) -> List[Dict[str, Any]]:
+    """
+    Сортирует список операций по дате.
 
+    Args:
+        operations (List[Dict[str, Any]]): Список операций, каждая операция представлена словарем.
+        reverse (bool): True для сортировки в порядке убывания, False - в порядке возрастания.
 
-print(
-    filter_by_state(
-        [
-            {"id": 41428829, "state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
-            {"id": 939719570, "state": "EXECUTED", "date": "2018-06-30T02:08:58.425572"},
-            {"id": 594226727, "state": "CANCELED", "date": "2018-09-12T21:27:25.241689"},
-            {"id": 615064591, "state": "CANCELED", "date": "2018-10-14T08:21:33.419441"},
-        ]
-    )
-)
-print(
-    sort_by_date(
-        [
-            {"id": 41428829, "state": "EXECUTED", "date": "2019-07-03T18:35:29.512364"},
-            {"id": 939719570, "state": "EXECUTED", "date": "2018-06-30T02:08:58.425572"},
-            {"id": 594226727, "state": "CANCELED", "date": "2018-09-12T21:27:25.241689"},
-            {"id": 615064591, "state": "CANCELED", "date": "2018-10-14T08:21:33.419441"},
-        ]
-    )
-)
+    Returns:
+        List[Dict[str, Any]]: Отсортированный список операций.
+    """
+    return sorted(operations, key=lambda x: x.get("date", ""), reverse=reverse)

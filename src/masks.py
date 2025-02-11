@@ -9,7 +9,7 @@ def mask_card(card_number: str) -> str:
         Маскированный номер карты в виде строки.
         Пример: "1234 **** **** 5678"
     """
-    if len(card_number) < 8:
+    if card_number == None or len(card_number) < 8:
         return "Некорректный номер карты"  # Or raise ValueError, depending on desired behavior
     return f"{card_number[:4]} **** **** {card_number[-4:]}"
 
@@ -25,4 +25,6 @@ def mask_account(account_number: str) -> str:
         Маскированный номер счета в виде строки.
         Пример: "****5678"
     """
+    if account_number == None or len(account_number) < 4:
+        return "Некорректный номер карты"  # Or raise ValueError, depending on desired behavior
     return f"****{account_number[-4:]}"

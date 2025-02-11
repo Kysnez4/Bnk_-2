@@ -1,12 +1,11 @@
 from datetime import datetime
 
-from src.masks import mask_account, mask_card
+from .masks import mask_account, mask_card
 
 
 def mask_account_card(account_info: str) -> str:
     """
     Маскирует номер карты или счета в строке.
-
     Args:
         account_info: Строка, содержащая тип и номер карты или счета.
             Примеры: "Visa Platinum 7000792289606361", "Maestro 7000792289606361", "Счет 73654108430135874305"
@@ -14,6 +13,8 @@ def mask_account_card(account_info: str) -> str:
     Returns:
         Строка с замаскированным номером.
     """
+    if account_info == None:
+        return account_info
     parts = account_info.split()
     if not parts:
         return account_info  # Если строка пустая, возвращаем ее без изменений.
@@ -25,8 +26,7 @@ def mask_account_card(account_info: str) -> str:
     else:
         return account_info  # Если тип не распознан, возвращаем исходную строку
 
-
-def get_date(date_str: str) -> str:
+def get_date(date_str: str | None) -> str | None:
     """
     Преобразует строку с датой в формате "ГГГГ-ММ-ДДTчч:мм:сс.миллисекунды" в формат "ДД.ММ.ГГГГ".
 
@@ -35,8 +35,24 @@ def get_date(date_str: str) -> str:
             Пример: "2024-03-11T02:26:18.671407"
 
     Returns:
-        Строка с датой в формате "ДД.ММ.ГГГГ".
+        Строка с датой в формате "ДД.ММ.ГГГГ" или None, если date_str равен None или пустой строке.
         Пример: "11.03.2024"
     """
-    date_object = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+    if not date_str:
+        return None
+
+    try:
+        # Попытка обработать разные форматы дат
+        date_object = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+    except ValueError:
+        try:
+            # Попытка обработать формат "ГГГГ-ММ-ДД"
+            date_object = datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            try:
+                 # Попытка обработать формат "ГГГГ-М-Д"
+                date_object = datetime.strptime(date_str, "%Y-%m-%d")
+            except ValueError:
+                return None  # Или выбросить исключение, если хотите
+
     return date_object.strftime("%d.%m.%Y")

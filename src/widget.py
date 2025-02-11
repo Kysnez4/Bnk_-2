@@ -45,14 +45,6 @@ def get_date(date_str: str | None) -> str | None:
         # Попытка обработать разные форматы дат
         date_object = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
     except ValueError:
-        try:
-            # Попытка обработать формат "ГГГГ-ММ-ДД"
-            date_object = datetime.strptime(date_str, "%Y-%m-%d")
-        except ValueError:
-            try:
-                 # Попытка обработать формат "ГГГГ-М-Д"
-                date_object = datetime.strptime(date_str, "%Y-%m-%d")
-            except ValueError:
-                return None  # Или выбросить исключение, если хотите
+        date_object = datetime.strptime(date_str, "%Y-%m-%d")
 
     return date_object.strftime("%d.%m.%Y")

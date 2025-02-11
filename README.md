@@ -49,13 +49,11 @@ This project includes a comprehensive suite of tests written using pytest. The t
   •  Correctly masks card numbers with different formats and lengths.
   •  Correctly masks account numbers with different lengths.
   •  Handles edge cases such as empty strings and None inputs.
-  •  Raises TypeError for incorrect input types.
 
 •  widget.py:
   •  Correctly identifies and masks card and account numbers based on input type.
   •  Transforms date strings into the desired format (DD.MM.YYYY).
   •  Handles invalid date formats gracefully (returns None or raises an exception depending on the implementation).
-  •  Raises TypeError for incorrect input types.
 
 •  processing.py:
   •  Filters lists of operations dictionaries correctly based on state.

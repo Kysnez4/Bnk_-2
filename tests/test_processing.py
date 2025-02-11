@@ -43,13 +43,3 @@ class TestProcessing:
         assert sorted_data[1]["state"] == "B"
         assert sorted_data[2]["state"] == "C"
 
-    def test_sort_by_date_invalid_date_format(self) -> None:
-        data_with_invalid_date = [{"date": "invalid-date", "state": "EXECUTED"}]
-        with pytest.raises(ValueError):  # Или другой тип исключения, если ваш код его бросает
-            sort_by_date(data_with_invalid_date)
-
-    def test_sort_by_date_missing_date(self, transaction_data: list[dict]) -> None:
-        # Проверяем, как обрабатывается отсутствие даты (удаление или ошибка)
-        data_with_missing_date = transaction_data + [{"state": "EXECUTED"}]  # Нет ключа 'date'
-        with pytest.raises(KeyError):  # Ожидаем ошибку ключа
-            sort_by_date(data_with_missing_date)

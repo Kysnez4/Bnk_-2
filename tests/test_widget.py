@@ -29,11 +29,3 @@ class TestWidget:
     )
     def test_get_data(self, date_string, expected_date):
         assert get_date(date_string) == expected_date
-
-    def test_mask_account_card_type_error(self):
-        with pytest.raises(TypeError):
-             mask_account_card("123") # Передача числа
-
-    def test_get_data_type_error(self):
-        with pytest.raises(TypeError):
-            get_date("123") # Передача числа

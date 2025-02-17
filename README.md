@@ -18,6 +18,8 @@ python main.py
 
 ```
 ▌Example
+=======
+
 
     The script uses sample data to demonstrate the functionality.
     You can modify the test_data in main.py to use your own data.
@@ -73,4 +75,6 @@ This project includes a comprehensive suite of tests written using pytest. The t
 #pytest --cov=.
 ```
   This will run all tests in the tests/ directory and display the results. A coverage report will also be generated, indicating the percentage of code covered by the tests.
+```
+=======
 ```

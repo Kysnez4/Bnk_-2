@@ -9,14 +9,13 @@ This project provides a widget to display and process bank operations data.  It 
 
 ## Usage
 
-The main script is `main.py`.  It imports functions from the `src/processing.py` module.
+The main script is `main.py`.  It imports functions from the `src/processing.py`, `src/masks.py`, and `src/generators.py` module.
 
 To run the script:
-```
+```bash
 python main.py
 ```
 
-```
 ▌Example
 
     The script uses sample data to demonstrate the functionality.
@@ -39,6 +38,12 @@ python main.py
 
 •  get_mask_account(account_number): Masks an account number, revealing only the last 4 digits.
 
+•  filter_by_currency(transactions, currency_code): Filters a list of transactions based on the specified currency code.
+
+•  transaction_descriptions(transactions): Extracts the description from each transaction in a list.
+
+•  card_number_generator(start, end): Generates a sequence of formatted card numbers within a specified range, useful for testing purposes.
+
 ▌Testing
 
 This project includes a comprehensive suite of tests written using pytest. The tests cover the following aspects:
@@ -60,17 +65,31 @@ This project includes a comprehensive suite of tests written using pytest. The t
   •  Sorts lists of operations dictionaries correctly by date in both ascending and descending order.
   •  Handles missing or invalid dates in the data.
 
+•  tests/test_generators.py:
+  •  Filters transaction lists by currency code accurately.
+  •  Extracts transaction descriptions correctly from lists of transactions.
+  •  Generates valid card numbers within the specified range.
+
 ▌Running Tests
 
 1. Make sure you have pytest installed (pip install pytest).
 2. Navigate to the project's root directory (where the tests/ folder is located).
-3. Run the tests using the following command:
-```
-#pytest
-```
-  To generate a coverage report (showing which parts of the code are tested), use:
-```
-#pytest --cov=.
-```
-  This will run all tests in the tests/ directory and display the results. A coverage report will also be generated, indicating the percentage of code covered by the tests.
-```
+3. Run the tests using the following command:  
+````bash
+pytest
+ ````
+4. To generate a coverage report (showing which parts of the code are tested), use: 
+````bash
+pytest --cov=.
+````
+
+This will run all tests in the tests/ directory and display the results. A coverage report will also be generated, indicating the percentage of code covered by the tests. You can view a detailed HTML report with:
+````bash
+pytest --cov=. --cov-report html
+````
+
+This will create a html cov directory with an index.html file to view coverage results in your browser.
+
+
+    
+

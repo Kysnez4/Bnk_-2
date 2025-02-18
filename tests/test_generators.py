@@ -11,7 +11,6 @@ from src.generators import filter_by_currency, transaction_descriptions, card_nu
     ],
 )
 def test_filter_by_currency(sample_transactions, currency_code, expected_count, expected_descriptions):
-    """Проверяет, что функция правильно фильтрует транзакции по валюте."""
     transactions = list(filter_by_currency(sample_transactions, currency_code))
     assert len(transactions) == expected_count
     descriptions = [t["description"] for t in transactions]
@@ -19,12 +18,10 @@ def test_filter_by_currency(sample_transactions, currency_code, expected_count, 
 
 
 def test_filter_by_currency_empty_list():
-    """Проверяет, что функция не завершается ошибкой при обработке пустого списка."""
     filtered_transactions = list(filter_by_currency([], "USD"))
     assert len(filtered_transactions) == 0
 
 def test_filter_by_currency_missing_currency_code():
-    """Проверяет, что функция не падает если отсутствует код валюты."""
     transactions = [
         {"id": 1, "operationAmount": {}},
         {"id": 2, "description": "Test"},
@@ -43,7 +40,6 @@ def test_filter_by_currency_missing_currency_code():
     ],
 )
 def test_transaction_descriptions(transactions, expected_descriptions):
-    """Проверяет, что функция возвращает корректные описания транзакций."""
     descriptions = list(transaction_descriptions(transactions))
     assert descriptions == expected_descriptions
 
@@ -57,7 +53,6 @@ def test_transaction_descriptions(transactions, expected_descriptions):
     ],
 )
 def test_card_number_generator(start, end, expected_count, expected_first, expected_last):
-    """Проверяет, что генератор выдает правильные номера карт в заданном диапазоне."""
     card_numbers = list(card_number_generator(start, end))
     assert len(card_numbers) == expected_count
     if expected_count > 0:
@@ -65,6 +60,5 @@ def test_card_number_generator(start, end, expected_count, expected_first, expec
         assert card_numbers[-1] == expected_last
 
 def test_card_number_generator_zero_start():
-    """Проверяет корректную работу с нулевым начальным значением."""
     card_numbers = list(card_number_generator(0, 2))
     assert card_numbers == ["0000 0000 0000 0000", "0000 0000 0000 0001", "0000 0000 0000 0002"]

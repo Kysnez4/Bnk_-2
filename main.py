@@ -1,7 +1,8 @@
 from typing import Any, Dict, List, Optional, Union
 
-from src.processing import filter_by_state, sort_by_date
-from src.widget import get_date, mask_account_card
+from src import filter_by_state, sort_by_date
+from src import get_date, mask_account_card
+from src import transaction_descriptions, filter_by_currency
 
 
 def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -15,35 +16,17 @@ def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]
         List[Dict[str, Any]]: Список обработанных операций.
     """
     executed_operations = filter_by_state(operations)
-    sorted_operations = sort_by_date(executed_operations)
-    return sorted_operations
+    return list(sort_by_date(executed_operations))
 
 
 def format_operation(operation: Dict[str, Any]) -> str:
-    """
-    Форматирует информацию об одной операции в строку.
-
-    Args:
-        operation (Dict[str, Any]): Словарь, представляющий операцию.
-
-    Returns:
-        str: Отформатированная строка с информацией об операции.  Возвращает пустую строку если операция неполная.
-    """
+    """Форматирует информацию об операции в строку."""
     date = operation.get("date")
     description = operation.get("description")
     from_account = operation.get("from")
     to_account = operation.get("to")
-
-    # Safely access nested values using Optional and type narrowing
-    operation_amount = operation.get("operationAmount")
-    amount: Optional[str] = None
-    currency_name: Optional[str] = None
-
-    if isinstance(operation_amount, dict):
-        amount = operation_amount.get("amount")
-        currency = operation_amount.get("currency")
-        if isinstance(currency, dict):
-            currency_name = currency.get("name")
+    amount = operation.get("operationAmount", {}).get("amount")
+    currency_name = operation.get("operationAmount", {}).get("currency", {}).get("name")
 
     if not all([date, description, to_account, amount, currency_name]):
         return ""
@@ -59,29 +42,48 @@ def format_operation(operation: Dict[str, Any]) -> str:
     )
 
 
-def display_last_operations(operations: List[Dict[str, Any]], num_operations: int = 5) -> None:
+def display_last_operations(operations: List[Dict[str, Any]], num_operations: int = 5, currency_filter: str = None) -> None:
     """
     Выводит информацию о последних нескольких операциях.
 
     Args:
         operations (List[Dict[str, Any]]): Список операций.
         num_operations (int): Количество операций для вывода. По умолчанию 5.
+        currency_filter (str): Фильтр для валюты. Если есть
     """
     processed_operations = process_operations(operations)
+    if currency_filter:
+        processed_operations = list(filter_by_currency(processed_operations, currency_filter))
+
     for operation in processed_operations[:num_operations]:
         formatted_operation = format_operation(operation)
-        if formatted_operation:  # Check if the formatted_operation is not empty
+        if formatted_operation:
             print(formatted_operation)
             print()
 
+def get_operation_descriptions(operations: List[Dict[str, Any]]) -> List[str]:
+    """Извлекает описания всех операций."""
+    return list(transaction_descriptions(operations))
 
 if __name__ == "__main__":
-    # Example usage:
     test_data = [
-        {"id": 441945886345507595, "state": "EXECUTED", "date": "2019-12-07T06:15:55.770387", "description": "Перевод организации", "operationAmount": {"amount": "1000", "currency": {"name": "RUB"}}},
-        {"id": 70721515976355673, "state": "EXECUTED", "date": "2018-03-03T02:26:14.430106", "description": "Перевод организации", "operationAmount": {"amount": "2000", "currency": {"name": "USD"}}},
-        {"id": 929468254717360747, "state": "CANCELED", "date": "2016-06-24T10:15:27.329734", "description": "Перевод организации", "operationAmount": {"amount": "3000", "currency": {"name": "EUR"}}},
-        {"id": 579556847517945845, "state": "EXECUTED", "date": "2018-06-30T01:08:58.093740", "description": "Перевод организации", "operationAmount": {"amount": "4000", "currency": {"name": "GBP"}}},
-        {"id": 957806819417790721, "state": "EXECUTED", "date": "2018-08-29T09:12:31.542756", "description": "Открытие вклада", "operationAmount": {"amount": "5000", "currency": {"name": "CHF"}}},
+        {"id": 441945886345507595, "state": "EXECUTED", "date": "2019-12-07T06:15:55.770387", "description": "Перевод организации", "operationAmount": {"amount": "1000", "currency": {"name": "RUB", "code": "RUB"}}},
+        {"id": 70721515976355673, "state": "EXECUTED", "date": "2018-03-03T02:26:14.430106", "description": "Перевод организации", "operationAmount": {"amount": "2000", "currency": {"name": "USD", "code": "USD"}}},
+        {"id": 929468254717360747, "state": "CANCELED", "date": "2016-06-24T10:15:27.329734", "description": "Перевод организации", "operationAmount": {"amount": "3000", "currency": {"name": "EUR", "code": "EUR"}}},
+        {"id": 579556847517945845, "state": "EXECUTED", "date": "2018-06-30T01:08:58.093740", "description": "Перевод организации", "operationAmount": {"amount": "4000", "currency": {"name": "GBP", "code": "GBP"}}},
+        {"id": 957806819417790721, "state": "EXECUTED", "date": "2018-08-29T09:12:31.542756", "description": "Открытие вклада", "operationAmount": {"amount": "5000", "currency": {"name": "CHF", "code": "CHF"}}},
+        {"id": 1234567890, "state": "EXECUTED", "date": "2023-10-26T12:00:00.000000", "description": "Покупка в магазине", "operationAmount": {"amount": "50.00", "currency": {"name": "EUR", "code": "EUR"}}},
     ]
+
+    print("Последние операции (все валюты):")
     display_last_operations(test_data, num_operations=5)
+
+    print("\nПоследние операции по USD:")
+    display_last_operations(test_data, num_operations=5, currency_filter="USD")
+
+    print("\nПоследние операции по EUR:")
+    display_last_operations(test_data, num_operations=5, currency_filter="EUR")
+
+    print("\nОписания всех операций:")
+    descriptions = get_operation_descriptions(test_data)
+    print(descriptions)

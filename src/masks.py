@@ -1,4 +1,5 @@
-import logging, os
+import logging
+import os
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -28,7 +29,9 @@ def mask_card(card_number: str) -> str | None:
         logger.warning("В mask_card передан None, возвращается None")
         return None
     if len(card_number) < 8:
-        logger.warning(f"В mask_card передан номер карты короче 8 символов: {card_number}.  Возвращается без маскирования.")
+        logger.warning(
+            f"В mask_card передан номер карты короче 8 символов: {card_number}.  Возвращается без маскирования."
+        )
         return card_number  # Or raise ValueError, depending on desired behavior
 
     masked_card = f"{card_number[:4]} **** **** {card_number[-4:]}"
@@ -52,7 +55,9 @@ def mask_account(account_number: str) -> str | None:
         logger.warning("В mask_account передан None, возвращается None")
         return None
     if len(account_number) < 4:
-        logger.warning(f"В mask_account передан номер счета короче 4 символов: {account_number}. Возвращается без маскирования.")
+        logger.warning(
+            f"В mask_account передан номер счета короче 4 символов: {account_number}. Возвращается без маскирования."
+        )
         return account_number  # Or raise ValueError, depending on desired behavior
 
     masked_account = f"****{account_number[-4:]}"

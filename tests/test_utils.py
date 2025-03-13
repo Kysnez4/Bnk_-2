@@ -924,7 +924,7 @@ def test_invalid_json():
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("This is not valid JSON")
 
-    with patch("builtins.print") as mocked_print:
+    with patch("builtins.print"):
         transactions = load_transactions(filepath)
         assert transactions == []
 

@@ -1,7 +1,7 @@
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
-def filter_by_state(operations: List[Dict[str, Any]], state: str = 'EXECUTED') -> List[Dict[str, Any]]:
+def filter_by_state(operations: List[Dict[str, Any]], state: str = "EXECUTED") -> List[Dict[str, Any]]:
     """
     Фильтрует список операций по заданному статусу.
 

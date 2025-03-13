@@ -1,5 +1,6 @@
 import pytest
-from src.processing import filter_by_state, sort_by_date
+
+from src import filter_by_state, sort_by_date
 
 
 class TestProcessing:
@@ -42,4 +43,3 @@ class TestProcessing:
         assert sorted_data[0]["state"] == "A"
         assert sorted_data[1]["state"] == "B"
         assert sorted_data[2]["state"] == "C"
-

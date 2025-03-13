@@ -1,10 +1,9 @@
-from typing import Any, Dict, List, Optional, Union
-from src import log
-from src import filter_by_state, sort_by_date
-from src import get_date, mask_account_card
-from src import transaction_descriptions, filter_by_currency
+from typing import Any, Dict, List
 
-@log('log.log')
+from src import filter_by_state, get_date, log, mask_account_card, sort_by_date
+
+
+@log("log.log")
 def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Обрабатывает список операций: фильтрует выполненные, сортирует по дате и маскирует данные.
@@ -18,7 +17,8 @@ def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     executed_operations = filter_by_state(operations)
     return list(sort_by_date(executed_operations))
 
-@log('log.log')
+
+@log("log.log")
 def format_operation(operation: Dict[str, Any]) -> str:
     """Форматирует информацию об операции в строку."""
     date = operation.get("date")
@@ -41,20 +41,22 @@ def format_operation(operation: Dict[str, Any]) -> str:
         f"{amount} {currency_name}\n"
     )
 
+
 def display_last_operations(data, num_operations=5, currency_filter=None):
     """Отображает последние операции (с фильтром по валюте)."""
     filtered_operations = []
     for operation in data:
-        if currency_filter is None or operation.get('operationAmount', {}).get('currency', '') == currency_filter:
+        if currency_filter is None or operation.get("operationAmount", {}).get("currency", "") == currency_filter:
             filtered_operations.append(operation)
 
     for operation in filtered_operations[-num_operations:]:
-        print(operation.get('description', 'No description'))
+        print(operation.get("description", "No description"))
 
 
 def get_operation_descriptions(data):
     """Возвращает список описаний операций."""
-    return [operation.get('description', 'No description') for operation in data]
+    return [operation.get("description", "No description") for operation in data]
+
 
 # Пример данных (замените своими реальными данными)
 test_data = [

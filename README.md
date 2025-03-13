@@ -16,15 +16,18 @@ To run the script:
 python main.py
 ```
 
-```
 ▌Example
 =======
-
-
-    The script uses sample data to demonstrate the functionality.
-    You can modify the test_data in main.py to use your own data.
+The script uses sample data to demonstrate the functionality.   
+You can modify the test_data in main.py to use your own data. 
+The main.py script now also demonstrates the use of the @log decorator. 
+Logs will be output to the console unless a filename is specified when 
+applying the decorator (e.g., @log(filename="app.log")).
 
 ▌Functions
+=======
+•  decorators.py: Contains the log decorator for automatic logging of function execution, 
+   including successful results and exceptions.
 
 •  filter_by_state(operations, state='EXECUTED'): Filters a list of operations dictionaries by the state key.
    Returns a new list containing only operations with the specified state.
@@ -47,12 +50,35 @@ python main.py
 
 •  card_number_generator(start, end): Generates a sequence of formatted card numbers within a specified range, useful for testing purposes.
 
-▌Testing
+▌The log Decorator
+====
+The @log decorator is used to automatically log the execution of functions.
 
+▌USEAGE:
+===
+from decorators import log
+````
+@log
+def my_function(x, y):
+    return x + y
+
+@log(filename="mylog.txt")
+def another_function(x, y):
+    raise ValueError("Something went wrong")
+````
+▌Features:
+=
+•  Logs the start and end of function execution.
+•  Logs successful results.
+•  Logs exceptions, including the exception type, message, and input arguments.
+•  Can log to the console or to a file.
+
+▌Testing
+==
 This project includes a comprehensive suite of tests written using pytest. The tests cover the following aspects:
 
 ▌Test Coverage
-
+==
 •  masks.py:
   •  Correctly masks card numbers with different formats and lengths.
   •  Correctly masks account numbers with different lengths.
@@ -74,7 +100,7 @@ This project includes a comprehensive suite of tests written using pytest. The t
   •  Generates valid card numbers within the specified range.
 
 ▌Running Tests
-
+==
 1. Make sure you have pytest installed (pip install pytest).
 2. Navigate to the project's root directory (where the tests/ folder is located).
 3. Run the tests using the following command:  

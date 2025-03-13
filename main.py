@@ -1,10 +1,10 @@
 from typing import Any, Dict, List, Optional, Union
-
+from src import log
 from src import filter_by_state, sort_by_date
 from src import get_date, mask_account_card
 from src import transaction_descriptions, filter_by_currency
 
-
+@log('log.log')
 def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Обрабатывает список операций: фильтрует выполненные, сортирует по дате и маскирует данные.
@@ -18,7 +18,7 @@ def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]
     executed_operations = filter_by_state(operations)
     return list(sort_by_date(executed_operations))
 
-
+@log('log.log')
 def format_operation(operation: Dict[str, Any]) -> str:
     """Форматирует информацию об операции в строку."""
     date = operation.get("date")
@@ -41,49 +41,44 @@ def format_operation(operation: Dict[str, Any]) -> str:
         f"{amount} {currency_name}\n"
     )
 
+def display_last_operations(data, num_operations=5, currency_filter=None):
+    """Отображает последние операции (с фильтром по валюте)."""
+    filtered_operations = []
+    for operation in data:
+        if currency_filter is None or operation.get('operationAmount', {}).get('currency', '') == currency_filter:
+            filtered_operations.append(operation)
 
-def display_last_operations(operations: List[Dict[str, Any]], num_operations: int = 5, currency_filter: str = None) -> None:
-    """
-    Выводит информацию о последних нескольких операциях.
+    for operation in filtered_operations[-num_operations:]:
+        print(operation.get('description', 'No description'))
 
-    Args:
-        operations (List[Dict[str, Any]]): Список операций.
-        num_operations (int): Количество операций для вывода. По умолчанию 5.
-        currency_filter (str): Фильтр для валюты. Если есть
-    """
-    processed_operations = process_operations(operations)
-    if currency_filter:
-        processed_operations = list(filter_by_currency(processed_operations, currency_filter))
 
-    for operation in processed_operations[:num_operations]:
-        formatted_operation = format_operation(operation)
-        if formatted_operation:
-            print(formatted_operation)
-            print()
+def get_operation_descriptions(data):
+    """Возвращает список описаний операций."""
+    return [operation.get('description', 'No description') for operation in data]
 
-def get_operation_descriptions(operations: List[Dict[str, Any]]) -> List[str]:
-    """Извлекает описания всех операций."""
-    return list(transaction_descriptions(operations))
+# Пример данных (замените своими реальными данными)
+test_data = [
+    {"description": "Перевод организации", "operationAmount": {"currency": "RUB", "amount": 10000}},
+    {"description": "Оплата услуг", "operationAmount": {"currency": "USD", "amount": 50}},
+    {"description": "Покупка в магазине", "operationAmount": {"currency": "RUB", "amount": 500}},
+    {"description": "Перевод другу", "operationAmount": {"currency": "EUR", "amount": 20}},
+    {"description": "Снятие наличных", "operationAmount": {"currency": "USD", "amount": 100}},
+    {"description": "Пополнение счета", "operationAmount": {"currency": "RUB", "amount": 2000}},
+    {"description": "Оплата интернета", "operationAmount": {"currency": "EUR", "amount": 30}},
+    {"description": "Покупка билетов", "operationAmount": {"currency": "USD", "amount": 75}},
+    {"description": "Возврат товара", "operationAmount": {"currency": "RUB", "amount": 300}},
+    {"description": "Перевод зарплаты", "operationAmount": {"currency": "EUR", "amount": 150}},
+]
 
-if __name__ == "__main__":
-    test_data = [
-        {"id": 441945886345507595, "state": "EXECUTED", "date": "2019-12-07T06:15:55.770387", "description": "Перевод организации", "operationAmount": {"amount": "1000", "currency": {"name": "RUB", "code": "RUB"}}},
-        {"id": 70721515976355673, "state": "EXECUTED", "date": "2018-03-03T02:26:14.430106", "description": "Перевод организации", "operationAmount": {"amount": "2000", "currency": {"name": "USD", "code": "USD"}}},
-        {"id": 929468254717360747, "state": "CANCELED", "date": "2016-06-24T10:15:27.329734", "description": "Перевод организации", "operationAmount": {"amount": "3000", "currency": {"name": "EUR", "code": "EUR"}}},
-        {"id": 579556847517945845, "state": "EXECUTED", "date": "2018-06-30T01:08:58.093740", "description": "Перевод организации", "operationAmount": {"amount": "4000", "currency": {"name": "GBP", "code": "GBP"}}},
-        {"id": 957806819417790721, "state": "EXECUTED", "date": "2018-08-29T09:12:31.542756", "description": "Открытие вклада", "operationAmount": {"amount": "5000", "currency": {"name": "CHF", "code": "CHF"}}},
-        {"id": 1234567890, "state": "EXECUTED", "date": "2023-10-26T12:00:00.000000", "description": "Покупка в магазине", "operationAmount": {"amount": "50.00", "currency": {"name": "EUR", "code": "EUR"}}},
-    ]
+print("Последние операции (все валюты):")
+display_last_operations(test_data, num_operations=5)
 
-    print("Последние операции (все валюты):")
-    display_last_operations(test_data, num_operations=5)
+print("\nПоследние операции по USD:")
+display_last_operations(test_data, num_operations=5, currency_filter="USD")
 
-    print("\nПоследние операции по USD:")
-    display_last_operations(test_data, num_operations=5, currency_filter="USD")
+print("\nПоследние операции по EUR:")
+display_last_operations(test_data, num_operations=5, currency_filter="EUR")
 
-    print("\nПоследние операции по EUR:")
-    display_last_operations(test_data, num_operations=5, currency_filter="EUR")
-
-    print("\nОписания всех операций:")
-    descriptions = get_operation_descriptions(test_data)
-    print(descriptions)
+print("\nОписания всех операций:")
+descriptions = get_operation_descriptions(test_data)
+print(descriptions)

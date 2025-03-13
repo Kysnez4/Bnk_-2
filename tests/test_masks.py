@@ -1,6 +1,6 @@
 import pytest
 
-from src import mask_account, mask_card
+from src.masks import mask_account, mask_card
 
 
 class TestMasks:

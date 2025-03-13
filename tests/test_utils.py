@@ -2,7 +2,7 @@ import json
 import os
 from unittest.mock import patch
 
-from src import load_transactions
+from src.utils import load_transactions
 
 
 def test_get_transaction():

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src import calculate_transaction_amount
+from src.external_api import calculate_transaction_amount
 
 
 # Создадим фиктивный .env для тестов

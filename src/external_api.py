@@ -28,9 +28,14 @@ def calculate_transaction_amount(transaction):
         print(f"Ошибка: Неподдерживаемая валюта: {currency}")
         return None
 
-    url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
+    url = f"https://api.apilayer.com/exchangerates_data/convert?to=RUB&from={currency}&amount={amount}"
     # print(url)
     response = requests.get(url, headers={"apikey": api_key})
-    response.raise_for_status()
-    rate = response.json()["rates"]["RUB"]
-    return float(amount * rate)
+    try:
+        response.raise_for_status()
+        data = response.json()
+        return float(data["result"])
+    except KeyError:
+        print("Ошибка: Неверный формат ответа API")
+        return None
+

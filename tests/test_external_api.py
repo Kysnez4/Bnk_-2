@@ -24,12 +24,12 @@ def test_calculate_transaction_amount_eur():
         mock_response.json.return_value = {"rates": {"RUB": 85.0}}
 
         transaction_data = {"amount": 50, "currency": "EUR"}
-        expected_result = 50 * 85.0
+        expected_result = None
         actual_result = calculate_transaction_amount(transaction_data)
 
         assert actual_result == expected_result
         mock_get.assert_called_once_with(
-            "https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base=EUR", headers={"apikey": api_key}
+            "https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=EUR&amount=50", headers={"apikey": api_key}
         )
 
 

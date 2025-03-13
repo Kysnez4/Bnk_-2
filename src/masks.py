@@ -4,8 +4,6 @@ import os
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 log_dir = "..\\logs"
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
 log_file_path = os.path.join(log_dir, "utils.log")
 file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
 file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")

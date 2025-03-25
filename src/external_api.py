@@ -17,8 +17,8 @@ def calculate_transaction_amount(transaction):
                Возвращает None в случае ошибки.
     """
     try:
-        amount = transaction["amount"]
-        currency = transaction["currency"]["code"]
+        amount = transaction['operationAmount']["amount"]
+        currency = transaction['operationAmount']["currency"]["code"]
 
         if not isinstance(amount, str) or not isinstance(currency, str):
             print("Ошибка: Некорректные данные транзакции")

@@ -33,7 +33,7 @@ def test_calculate_transaction_amount_usd(mock_env):
             "to": "Счет 35383033474447895560",
         }
         expected_result = 8221.37 * 90.0  # Ожидаемый результат (сумма в USD * курс)
-        actual_result = calculate_transaction_amount(data["operationAmount"])
+        actual_result = calculate_transaction_amount(data)
 
         assert actual_result == expected_result
         mock_get.assert_called_once_with(
@@ -54,7 +54,7 @@ def test_calculate_transaction_amount_rub(mock_env):
         "to": "Счет 35383033474447895560",
     }
     expected_result = float(8221.37)
-    actual_result = calculate_transaction_amount(data["operationAmount"])
+    actual_result = calculate_transaction_amount(data)
 
     assert actual_result == expected_result
 
@@ -70,7 +70,7 @@ def test_calculate_transaction_amount_invalid_currency(mock_env):
         "from": "MasterCard 7158300734726758",
         "to": "Счет 35383033474447895560",
     }
-    actual_result = calculate_transaction_amount(data["operationAmount"])
+    actual_result = calculate_transaction_amount(data)
 
     assert actual_result is None
 

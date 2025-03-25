@@ -27,23 +27,18 @@ def test_calculate_transaction_amount_usd(mock_env):
             "id": 41428829,
             "state": "EXECUTED",
             "date": "2019-07-03T18:35:29.512364",
-            "operationAmount": {
-              "amount": "8221.37",
-              "currency": {
-                "name": "USD",
-                "code": "USD"
-              }
-            },
+            "operationAmount": {"amount": "8221.37", "currency": {"name": "USD", "code": "USD"}},
             "description": "Перевод организации",
             "from": "MasterCard 7158300734726758",
-            "to": "Счет 35383033474447895560"
-          }
+            "to": "Счет 35383033474447895560",
+        }
         expected_result = 8221.37 * 90.0  # Ожидаемый результат (сумма в USD * курс)
         actual_result = calculate_transaction_amount(data["operationAmount"])
 
         assert actual_result == expected_result
         mock_get.assert_called_once_with(
-            "https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount=8221.37", headers={"apikey": api_key}
+            "https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount=8221.37",
+            headers={"apikey": api_key},
         )
 
 
@@ -53,17 +48,11 @@ def test_calculate_transaction_amount_rub(mock_env):
         "id": 41428829,
         "state": "EXECUTED",
         "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {
-          "amount": "8221.37",
-          "currency": {
-            "name": "RUB",
-            "code": "RUB"
-          }
-        },
+        "operationAmount": {"amount": "8221.37", "currency": {"name": "RUB", "code": "RUB"}},
         "description": "Перевод организации",
         "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560"
-      }
+        "to": "Счет 35383033474447895560",
+    }
     expected_result = float(8221.37)
     actual_result = calculate_transaction_amount(data["operationAmount"])
 
@@ -76,17 +65,11 @@ def test_calculate_transaction_amount_invalid_currency(mock_env):
         "id": 41428829,
         "state": "EXECUTED",
         "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {
-          "amount": "8221.37",
-          "currency": {
-            "name": "GBP",
-            "code": "GBP"
-          }
-        },
+        "operationAmount": {"amount": "8221.37", "currency": {"name": "GBP", "code": "GBP"}},
         "description": "Перевод организации",
         "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560"
-      }
+        "to": "Счет 35383033474447895560",
+    }
     actual_result = calculate_transaction_amount(data["operationAmount"])
 
     assert actual_result is None
@@ -98,13 +81,11 @@ def test_calculate_transaction_amount_missing_data(mock_env):
         "id": 41428829,
         "state": "EXECUTED",
         "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {
-          "amount": "8221.37"
-        },
+        "operationAmount": {"amount": "8221.37"},
         "description": "Перевод организации",
         "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560"
-      }
+        "to": "Счет 35383033474447895560",
+    }
     actual_result = calculate_transaction_amount(data["operationAmount"])
 
     assert actual_result is None
@@ -116,20 +97,15 @@ def test_calculate_transaction_amount_invalid_type(mock_env):
         "id": 41428829,
         "state": "EXECUTED",
         "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {
-          "amount": "abc",
-          "currency": {
-            "name": "USD",
-            "code": 33
-          }
-        },
+        "operationAmount": {"amount": "abc", "currency": {"name": "USD", "code": 33}},
         "description": "Перевод организации",
         "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560"
-      }
+        "to": "Счет 35383033474447895560",
+    }
     actual_result = calculate_transaction_amount(data["operationAmount"])
 
     assert actual_result is None
+
 
 def test_calculate_transaction_amount_invalid_amount_type(mock_env):
     """Тест для некорректного типа данных суммы транзакции."""
@@ -137,17 +113,10 @@ def test_calculate_transaction_amount_invalid_amount_type(mock_env):
         "id": 41428829,
         "state": "EXECUTED",
         "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {
-          "amount": "abc",
-          "currency": {
-            "name": "USD",
-            "code": "USD"
-          }
-        },
+        "operationAmount": {"amount": "abc", "currency": {"name": "USD", "code": "USD"}},
         "description": "Перевод организации",
         "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560"
-      }
+        "to": "Счет 35383033474447895560",
+    }
     actual_result = calculate_transaction_amount(data["operationAmount"])
-
     assert actual_result is None

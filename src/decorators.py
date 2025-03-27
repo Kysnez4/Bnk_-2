@@ -1,6 +1,7 @@
 # decorators.py
-from functools import wraps
 import logging
+from functools import wraps
+
 
 def log(filename=None):
     """
@@ -18,6 +19,7 @@ def log(filename=None):
         def my_function_console(x, y):
             return x + y
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -26,12 +28,12 @@ def log(filename=None):
 
             if filename:
                 file_handler = logging.FileHandler(filename)
-                formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
                 file_handler.setFormatter(formatter)
                 logger.addHandler(file_handler)
             else:
                 stream_handler = logging.StreamHandler()
-                formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+                formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
                 stream_handler.setFormatter(formatter)
                 logger.addHandler(stream_handler)
 
@@ -44,4 +46,5 @@ def log(filename=None):
                 raise  # Re-raise the exception to avoid masking errors
 
         return wrapper
+
     return decorator

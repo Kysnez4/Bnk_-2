@@ -1,8 +1,8 @@
 import os
-from unittest.mock import patch
 
 import pytest
-
+from unittest.mock import patch, Mock
+import requests
 from src.external_api import calculate_transaction_amount
 
 
@@ -12,6 +12,19 @@ def mock_env(monkeypatch):
     monkeypatch.setenv("API_KEY", "test_api_key")
     yield
     monkeypatch.delenv("API_KEY", raising=False)
+
+
+def test_rub_transaction():
+    """Тест для транзакции в рублях (без конвертации)"""
+    transaction = {
+        "operationAmount": {
+            "amount": "500.00",
+            "currency": {
+                "code": "RUB"
+            }
+        }
+    }
+    assert calculate_transaction_amount(transaction) == 500.00
 
 
 def test_calculate_transaction_amount_usd(mock_env):
@@ -42,81 +55,70 @@ def test_calculate_transaction_amount_usd(mock_env):
         )
 
 
-def test_calculate_transaction_amount_rub(mock_env):
-    """Тест для транзакции в RUB."""
-    data = {
-        "id": 41428829,
-        "state": "EXECUTED",
-        "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {"amount": "8221.37", "currency": {"name": "RUB", "code": "RUB"}},
-        "description": "Перевод организации",
-        "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560",
+def test_invalid_amount_format():
+    """Тест с некорректным форматом суммы"""
+    transaction = {
+        "operationAmount": {
+            "amount": "not_a_number",
+            "currency": {
+                "code": "USD"
+            }
+        }
     }
-    expected_result = float(8221.37)
-    actual_result = calculate_transaction_amount(data)
-
-    assert actual_result == expected_result
+    assert calculate_transaction_amount(transaction) is None
 
 
-def test_calculate_transaction_amount_invalid_currency(mock_env):
-    """Тест для неподдерживаемой валюты."""
-    data = {
-        "id": 41428829,
-        "state": "EXECUTED",
-        "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {"amount": "8221.37", "currency": {"name": "GBP", "code": "GBP"}},
-        "description": "Перевод организации",
-        "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560",
+def test_unsupported_currency():
+    """Тест с неподдерживаемой валютой"""
+    transaction = {
+        "operationAmount": {
+            "amount": "100.00",
+            "currency": {
+                "code": "GBP"
+            }
+        }
     }
-    actual_result = calculate_transaction_amount(data)
-
-    assert actual_result is None
+    assert calculate_transaction_amount(transaction) is None
 
 
-def test_calculate_transaction_amount_missing_data(mock_env):
-    """Тест для отсутствующих данных в транзакции."""
-    data = {
-        "id": 41428829,
-        "state": "EXECUTED",
-        "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {"amount": "8221.37"},
-        "description": "Перевод организации",
-        "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560",
+def test_missing_currency_code():
+    """Тест с отсутствующим кодом валюты"""
+    transaction = {
+        "operationAmount": {
+            "amount": "100.00",
+            "currency": {}
+        }
     }
-    actual_result = calculate_transaction_amount(data["operationAmount"])
-
-    assert actual_result is None
+    assert calculate_transaction_amount(transaction) is None
 
 
-def test_calculate_transaction_amount_invalid_type(mock_env):
-    """Тест для некорректного типа данных суммы транзакции."""
-    data = {
-        "id": 41428829,
-        "state": "EXECUTED",
-        "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {"amount": "abc", "currency": {"name": "USD", "code": 33}},
-        "description": "Перевод организации",
-        "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560",
+def test_missing_operation_amount():
+    """Тест с отсутствующим operationAmount"""
+    transaction = {}
+    assert calculate_transaction_amount(transaction) is None
+
+
+@patch('src.external_api.requests.get')
+def test_api_failure(mock_get, mock_transaction):
+    """Тест с ошибкой API"""
+    mock_response = Mock()
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("API Error")
+    mock_get.return_value = mock_response
+
+    with patch('src.external_api.os.getenv', return_value="test_api_key"):
+        result = calculate_transaction_amount(mock_transaction)
+
+    assert result is None
+
+
+def test_invalid_amount_type():
+    """Тест с некорректным типом суммы (не строка)"""
+    transaction = {
+        "operationAmount": {
+            "amount": 100.00,  # Должно быть строкой
+            "currency": {
+                "code": "USD"
+            }
+        }
     }
-    actual_result = calculate_transaction_amount(data["operationAmount"])
-
-    assert actual_result is None
-
-
-def test_calculate_transaction_amount_invalid_amount_type(mock_env):
-    """Тест для некорректного типа данных суммы транзакции."""
-    data = {
-        "id": 41428829,
-        "state": "EXECUTED",
-        "date": "2019-07-03T18:35:29.512364",
-        "operationAmount": {"amount": "abc", "currency": {"name": "USD", "code": "USD"}},
-        "description": "Перевод организации",
-        "from": "MasterCard 7158300734726758",
-        "to": "Счет 35383033474447895560",
-    }
-    actual_result = calculate_transaction_amount(data["operationAmount"])
-    assert actual_result is None
+    assert calculate_transaction_amount(transaction) is None

@@ -1,86 +1,111 @@
-from typing import Any, Dict, List
-
-from src import filter_by_state, get_date, log, mask_account_card, sort_by_date
-
-
-@log("log.log")
-def process_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Обрабатывает список операций: фильтрует выполненные, сортирует по дате и маскирует данные.
-
-    Args:
-        operations (List[Dict[str, Any]]): Список операций.
-
-    Returns:
-        List[Dict[str, Any]]: Список обработанных операций.
-    """
-    executed_operations = filter_by_state(operations)
-    return list(sort_by_date(executed_operations))
+from typing import List, Dict, Any
+from src.processing import (
+    filter_by_state,
+    sort_by_date,
+    count_transactions_by_category,
+)
+from src.regex_utils import filter_transactions_by_description
+from src.transaction_reader import csv_to_list, xlsx_to_list
+from src.utils import load_transactions
+from src.widget import mask_account_card, get_date
+from src.external_api import calculate_transaction_amount
 
 
-@log("log.log")
-def format_operation(operation: Dict[str, Any]) -> str:
-    """Форматирует информацию об операции в строку."""
-    date = operation.get("date")
-    description = operation.get("description")
-    from_account = operation.get("from")
-    to_account = operation.get("to")
-    amount = operation.get("operationAmount", {}).get("amount")
-    currency_name = operation.get("operationAmount", {}).get("currency", {}).get("name")
+def print_transaction(transaction: Dict[str, Any]) -> None:
+    """Форматирует и печатает информацию о транзакции."""
+    date = get_date(transaction.get("date", ""))
+    description = transaction.get("description", "No description")
+    from_ = mask_account_card(transaction.get("from"))
+    to = mask_account_card(transaction.get("to"))
+    amount = calculate_transaction_amount(transaction) or 0
 
-    if not all([date, description, to_account, amount, currency_name]):
-        return ""
-
-    formatted_date = get_date(str(date))
-    masked_from_account = mask_account_card(str(from_account)) if from_account else "Счет отправителя не указан"
-    masked_to_account = mask_account_card(str(to_account))
-
-    return (
-        f"{formatted_date} {description}\n"
-        f"{masked_from_account} -> {masked_to_account}\n"
-        f"{amount} {currency_name}\n"
-    )
+    print(f"{date} {description}")
+    if from_:
+        print(f"{from_} -> {to}")
+    else:
+        print(f"{to}")
+    print(f"Сумма: {amount:.2f} руб.\n")
 
 
-def display_last_operations(data, num_operations=5, currency_filter=None):
-    """Отображает последние операции (с фильтром по валюте)."""
-    filtered_operations = []
-    for operation in data:
-        if currency_filter is None or operation.get("operationAmount", {}).get("currency", "") == currency_filter:
-            filtered_operations.append(operation)
-
-    for operation in filtered_operations[-num_operations:]:
-        print(operation.get("description", "No description"))
-
-
-def get_operation_descriptions(data):
-    """Возвращает список описаний операций."""
-    return [operation.get("description", "No description") for operation in data]
+def get_user_choice(prompt: str, options: List[str]) -> str:
+    """Получает и валидирует выбор пользователя."""
+    while True:
+        try:
+            choice = input(prompt).strip().lower()
+            if choice in options:
+                return choice
+        except:
+            print(f"Некорректный ввод. Допустимые варианты: {', '.join(options)}")
 
 
-# Пример данных (замените своими реальными данными)
-test_data = [
-    {"description": "Перевод организации", "operationAmount": {"currency": "RUB", "amount": 10000}},
-    {"description": "Оплата услуг", "operationAmount": {"currency": "USD", "amount": 50}},
-    {"description": "Покупка в магазине", "operationAmount": {"currency": "RUB", "amount": 500}},
-    {"description": "Перевод другу", "operationAmount": {"currency": "EUR", "amount": 20}},
-    {"description": "Снятие наличных", "operationAmount": {"currency": "USD", "amount": 100}},
-    {"description": "Пополнение счета", "operationAmount": {"currency": "RUB", "amount": 2000}},
-    {"description": "Оплата интернета", "operationAmount": {"currency": "EUR", "amount": 30}},
-    {"description": "Покупка билетов", "operationAmount": {"currency": "USD", "amount": 75}},
-    {"description": "Возврат товара", "operationAmount": {"currency": "RUB", "amount": 300}},
-    {"description": "Перевод зарплаты", "operationAmount": {"currency": "EUR", "amount": 150}},
-]
+def main_menu() -> None:
+    """Основное меню программы."""
+    print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
+    print("Выберите необходимый пункт меню:")
+    print("1. Получить информацию о транзакциях из JSON-файла")
+    print("2. Получить информацию о транзакциях из CSV-файла")
+    print("3. Получить информацию о транзакциях из XLSX-файла")
 
-print("Последние операции (все валюты):")
-display_last_operations(test_data, num_operations=5)
+    choice = get_user_choice("Ваш выбор: ", ["1", "2", "3"])
+    file_types = {"1": "JSON", "2": "CSV", "3": "XLSX"}
+    print(f"\nДля обработки выбран {file_types[choice]}-файл.")
 
-print("\nПоследние операции по USD:")
-display_last_operations(test_data, num_operations=5, currency_filter="USD")
+    filename = input("Введите путь к файлу: ").strip()
 
-print("\nПоследние операции по EUR:")
-display_last_operations(test_data, num_operations=5, currency_filter="EUR")
+    if choice == "1":
+        transactions = load_transactions(filename)
+    elif choice == "2":
+        transactions = csv_to_list(filename)
+    else:
+        transactions = xlsx_to_list(filename)
 
-print("\nОписания всех операций:")
-descriptions = get_operation_descriptions(test_data)
-print(descriptions)
+    if not transactions:
+        print("Не удалось загрузить транзакции. Проверьте путь к файлу.")
+        return
+
+    process_transactions(transactions)
+
+
+def process_transactions(transactions: List[Dict[str, Any]]) -> None:
+    """Обрабатывает и фильтрует транзакции по выбору пользователя."""
+    valid_states = ["executed", "canceled", "pending"]
+    state = get_user_choice(
+        "Введите статус для фильтрации (executed/canceled/pending): ",
+        valid_states
+    ).upper()
+
+    filtered = filter_by_state(transactions, state)
+    print(f"\nНайдено {len(filtered)} операций со статусом {state}.")
+
+    if not filtered:
+        return
+
+    if get_user_choice("Отсортировать по дате? (да/нет): ", ["да", "нет"]) == "да":
+        order = get_user_choice(
+            "По возрастанию или убыванию? (возрастанию/убыванию): ",
+            ["возрастанию", "убыванию"]
+        )
+        filtered = sort_by_date(filtered, order == "убыванию")
+
+    if get_user_choice("Только рублевые транзакции? (да/нет): ", ["да", "нет"]) == "да":
+        filtered = [tx for tx in filtered
+                    if tx.get("operationAmount", {}).get("currency", {}).get("code") == "RUB"]
+
+    if get_user_choice("Фильтровать по описанию? (да/нет): ", ["да", "нет"]) == "да":
+        search_term = input("Введите текст для поиска: ")
+        filtered = filter_transactions_by_description(filtered, search_term)
+
+    print("\nРезультаты:")
+    for tx in filtered[:10]:  # Ограничиваем вывод 10 транзакциями
+        print_transaction(tx)
+
+    if get_user_choice("Показать статистику по категориям? (да/нет): ", ["да", "нет"]) == "да":
+        categories = input("Введите категории через запятую: ").split(",")
+        stats = count_transactions_by_category(filtered, [c.strip() for c in categories])
+        print("\nСтатистика:")
+        for category, count in stats.items():
+            print(f"{category}: {count}")
+
+
+if __name__ == "__main__":
+    main_menu()
